@@ -7,9 +7,45 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
+    <script>
+        // 检查登录状态
+        (async () => {
+            const authCookie = document.cookie.match(/auth=([^;]+)/);
+            if (!authCookie) {
+                window.location.href = '/login';
+                return;
+            }
+
+            try {
+                // 验证密码是否有效
+                const response = await fetch('/auth', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ password: authCookie[1] })
+                });
+
+                if (!response.ok) {
+                    // 清除无效的 cookie
+                    document.cookie = 'auth=; Path=/; Max-Age=0';
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('验证登录状态失败:', error);
+                window.location.href = '/login';
+            }
+        })();
+    </script>
+
     <div class="container mx-auto px-4 py-8">
         <div class="max-w-2xl mx-auto">
-            <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">文件转 Markdown</h1>
+            <div class="flex justify-between items-center mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">文件转 Markdown</h1>
+                <button id="logout-btn" class="px-4 py-2 text-sm text-red-600 hover:text-red-700 transition-colors">
+                    退出登录
+                </button>
+            </div>
             
             <div class="bg-white rounded-lg shadow-md p-6">
                 <!-- 错误提示 -->
@@ -117,6 +153,7 @@
         const errorText = document.getElementById('error-text');
         const btnText = document.getElementById('btn-text');
         const loadingSpinner = document.getElementById('loading-spinner');
+        const logoutBtn = document.getElementById('logout-btn');
 
         // 文件拖放处理
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -226,7 +263,12 @@
 
                 const data = await response.json();
                 
-                if (data.error) {
+                if (!response.ok) {
+                    // 如果是未登录错误，跳转到登录页
+                    if (response.status === 401) {
+                        window.location.href = '/login';
+                        return;
+                    }
                     throw new Error(data.error);
                 }
 
@@ -241,6 +283,21 @@
                 convertBtn.disabled = false;
                 btnText.classList.remove('invisible');
                 loadingSpinner.classList.add('hidden');
+            }
+        });
+
+        // 登出功能
+        logoutBtn.addEventListener('click', async () => {
+            try {
+                const response = await fetch('/logout', {
+                    method: 'POST'
+                });
+
+                if (response.ok) {
+                    window.location.href = '/login';
+                }
+            } catch (error) {
+                console.error('登出失败:', error);
             }
         });
     </script>

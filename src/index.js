@@ -1,29 +1,59 @@
 export default {
 	async fetch(request, env, ctx) {
-		// console.log(`[${new Date().toISOString()}] 收到请求: ${request.method} ${new URL(request.url).pathname}`);
+		const url = new URL(request.url);
+		const authCookie = request.headers.get('Cookie')?.match(/auth=([^;]+)/)?.[1];
 		
-		// 处理静态文件
+		// 处理静态文件请求
 		if (request.method === 'GET') {
-			const url = new URL(request.url);
-			// console.log(`[${new Date().toISOString()}] 处理静态文件请求: ${url.pathname}`);
-			if (url.pathname === '/') {
-				// console.log(`[${new Date().toISOString()}] 返回首页`);
-				return env.ASSETS.fetch(request);
+			// 如果访问首页且没有cookie，重定向到登录页
+			if (url.pathname === '/' && !authCookie) {
+				return Response.redirect(new URL('/login', request.url), 302);
 			}
-			// console.log(`[${new Date().toISOString()}] 返回静态资源: ${url.pathname}`);
+			
+			// 所有静态资源都可以访问
 			return env.ASSETS.fetch(request);
 		}
 
+		// 验证密码
+		if (request.method === 'POST' && url.pathname === '/auth') {
+			const { password } = await request.json();
+			const isValid = password === env.PASSWORD;
+			
+			return new Response(JSON.stringify({ 
+				success: isValid 
+			}), {
+				status: isValid ? 200 : 401,
+				headers: { 'Content-Type': 'application/json' }
+			});
+		}
+
+		// 处理登出请求
+		if (request.method === 'POST' && url.pathname === '/logout') {
+			return new Response(JSON.stringify({ success: true }), {
+				headers: {
+					'Content-Type': 'application/json',
+					'Set-Cookie': 'auth=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0'
+				}
+			});
+		}
+
 		// 处理文件转换请求
-		if (request.method === 'POST' && new URL(request.url).pathname === '/convert') {
-			// console.log(`[${new Date().toISOString()}] 处理文件转换请求`);
+		if (request.method === 'POST' && url.pathname === '/convert') {
+			// 验证登录状态
+			if (!authCookie || authCookie !== env.PASSWORD) {
+				return new Response(JSON.stringify({ 
+					error: '请先登录' 
+				}), {
+					status: 401,
+					headers: { 'Content-Type': 'application/json' }
+				});
+			}
+
 			try {
-				// console.log(`[${new Date().toISOString()}] 解析表单数据`);
 				const formData = await request.formData();
 				const file = formData.get('file');
 				
 				if (!file) {
-					// console.log(`[${new Date().toISOString()}] 错误: 未上传文件`);
 					return new Response(JSON.stringify({ error: '请上传文件' }), {
 						status: 400,
 						headers: { 'Content-Type': 'application/json' }
@@ -49,7 +79,6 @@ export default {
 				];
 
 				if (!supportedMimeTypes.includes(file.type)) {
-					// console.log(`[${new Date().toISOString()}] 错误: 不支持的文件类型 ${file.type}`);
 					return new Response(JSON.stringify({ 
 						error: '不支持的文件类型。请上传 PDF、图片、HTML、XML、Office 文档、CSV 或 Numbers 文件。' 
 					}), {
@@ -61,17 +90,14 @@ export default {
 				console.log(`[${new Date().toISOString()}] 收到文件: ${file.name}, 大小: ${file.size} 字节, 类型: ${file.type}`);
 				
 				// 调用 AI 进行转换
-				// console.log(`[${new Date().toISOString()}] 开始调用 AI 进行转换`);
 				const results = await env.AI.toMarkdown([
 					{
 						name: file.name,
 						blob: file
 					}
 				]);
-				// console.log(`[${new Date().toISOString()}] AI 转换完成, 结果长度: ${results[0].data.length} 字符`);
 
 				// 返回第一个文档的转换结果
-				// console.log(`[${new Date().toISOString()}] 返回转换结果`);
 				return new Response(JSON.stringify({ 
 					markdown: results[0].data 
 				}), {
@@ -86,7 +112,6 @@ export default {
 			}
 		}
 
-		// console.log(`[${new Date().toISOString()}] 未找到匹配的路由, 返回 404`);
 		return new Response('Not Found', { status: 404 });
 	}
 };
