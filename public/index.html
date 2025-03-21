@@ -12,9 +12,22 @@
             <h1 class="text-3xl font-bold text-center mb-8 text-gray-800">文件转 Markdown</h1>
             
             <div class="bg-white rounded-lg shadow-md p-6">
+                <!-- 错误提示 -->
+                <div id="error-message" class="mb-4 hidden">
+                    <div class="p-4 text-red-700 bg-red-100 rounded-lg">
+                        <div class="flex items-center">
+                            <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                            </svg>
+                            <span id="error-text"></span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="mb-4">
-                    <div class="flex items-center justify-center w-full">
-                        <label class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100">
+                    <!-- 文件上传区域 -->
+                    <div id="drop-zone" class="flex items-center justify-center w-full">
+                        <label class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
                             <div class="flex flex-col items-center justify-center pt-5 pb-6">
                                 <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
                                     <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
@@ -24,6 +37,26 @@
                             </div>
                             <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" />
                         </label>
+                    </div>
+
+                    <!-- 文件预览区域 -->
+                    <div id="file-preview" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center">
+                                <svg class="w-8 h-8 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                                </svg>
+                                <div>
+                                    <p id="file-name" class="text-sm font-medium text-gray-900"></p>
+                                    <p id="file-size" class="text-sm text-gray-500"></p>
+                                </div>
+                            </div>
+                            <button id="remove-file" class="text-red-500 hover:text-red-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 </div>
                 
@@ -41,15 +74,29 @@
                     </ul>
                 </div>
                 
-                <div class="flex justify-center">
-                    <button id="convert-btn" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors" disabled>
-                        转换为 Markdown
+                <div class="flex justify-center mt-6">
+                    <button id="convert-btn" class="relative px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed" disabled>
+                        <span id="btn-text">转换为 Markdown</span>
+                        <div id="loading-spinner" class="hidden absolute inset-0 flex items-center justify-center">
+                            <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
                     </button>
                 </div>
             </div>
 
             <div id="result" class="mt-8 bg-white rounded-lg shadow-md p-6 hidden">
-                <h2 class="text-xl font-semibold mb-4">转换结果</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold">转换结果</h2>
+                    <button id="copy-btn" class="flex items-center px-3 py-1 text-sm bg-gray-100 hover:bg-gray-200 rounded transition-colors">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/>
+                        </svg>
+                        复制
+                    </button>
+                </div>
                 <pre id="markdown-output" class="bg-gray-50 p-4 rounded-lg overflow-x-auto"></pre>
             </div>
         </div>
@@ -57,14 +104,107 @@
 
     <script>
         const fileUpload = document.getElementById('file-upload');
+        const dropZone = document.getElementById('drop-zone');
+        const filePreview = document.getElementById('file-preview');
+        const fileName = document.getElementById('file-name');
+        const fileSize = document.getElementById('file-size');
+        const removeFile = document.getElementById('remove-file');
         const convertBtn = document.getElementById('convert-btn');
         const result = document.getElementById('result');
         const markdownOutput = document.getElementById('markdown-output');
+        const copyBtn = document.getElementById('copy-btn');
+        const errorMessage = document.getElementById('error-message');
+        const errorText = document.getElementById('error-text');
+        const btnText = document.getElementById('btn-text');
+        const loadingSpinner = document.getElementById('loading-spinner');
 
-        fileUpload.addEventListener('change', () => {
-            convertBtn.disabled = !fileUpload.files.length;
+        // 文件拖放处理
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+            document.body.addEventListener(eventName, preventDefaults, false);
         });
 
+        function preventDefaults (e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-blue-500');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-blue-500');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            handleFile(file);
+        }
+
+        // 文件上传处理
+        fileUpload.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            handleFile(file);
+        });
+
+        function handleFile(file) {
+            if (!file) return;
+            
+            // 显示文件预览
+            fileName.textContent = file.name;
+            fileSize.textContent = formatFileSize(file.size);
+            dropZone.classList.add('hidden');
+            filePreview.classList.remove('hidden');
+            convertBtn.disabled = false;
+            errorMessage.classList.add('hidden');
+            result.classList.add('hidden');
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 移除文件
+        removeFile.addEventListener('click', () => {
+            fileUpload.value = '';
+            dropZone.classList.remove('hidden');
+            filePreview.classList.add('hidden');
+            convertBtn.disabled = true;
+            errorMessage.classList.add('hidden');
+            result.classList.add('hidden');
+        });
+
+        // 复制功能
+        copyBtn.addEventListener('click', async () => {
+            try {
+                await navigator.clipboard.writeText(markdownOutput.textContent);
+                const originalText = copyBtn.innerHTML;
+                copyBtn.innerHTML = '<svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>已复制';
+                setTimeout(() => {
+                    copyBtn.innerHTML = originalText;
+                }, 2000);
+            } catch (err) {
+                console.error('复制失败:', err);
+            }
+        });
+
+        // 转换处理
         convertBtn.addEventListener('click', async () => {
             const file = fileUpload.files[0];
             if (!file) return;
@@ -73,8 +213,11 @@
             formData.append('file', file);
 
             try {
+                // 显示加载状态
                 convertBtn.disabled = true;
-                convertBtn.textContent = '转换中...';
+                btnText.classList.add('invisible');
+                loadingSpinner.classList.remove('hidden');
+                errorMessage.classList.add('hidden');
 
                 const response = await fetch('/convert', {
                     method: 'POST',
@@ -83,13 +226,21 @@
 
                 const data = await response.json();
                 
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
                 result.classList.remove('hidden');
                 markdownOutput.textContent = data.markdown;
             } catch (error) {
-                alert('转换失败：' + error.message);
+                errorText.textContent = `转换失败：${error.message}`;
+                errorMessage.classList.remove('hidden');
+                result.classList.add('hidden');
             } finally {
+                // 恢复按钮状态
                 convertBtn.disabled = false;
-                convertBtn.textContent = '转换为 Markdown';
+                btnText.classList.remove('invisible');
+                loadingSpinner.classList.add('hidden');
             }
         });
     </script>
