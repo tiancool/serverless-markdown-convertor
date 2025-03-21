@@ -70,28 +70,17 @@
                                 </svg>
                                 <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">点击上传</span> 或拖拽文件到这里</p>
                                 <p class="text-xs text-gray-500">支持 PDF、图片、Office 文档等格式</p>
+                                <p class="text-xs text-gray-500 mt-1">可以选择多个文件或多次添加</p>
                             </div>
-                            <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" />
+                            <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" multiple />
                         </label>
                     </div>
 
-                    <!-- 文件预览区域 -->
-                    <div id="file-preview" class="hidden mt-4 p-4 bg-gray-50 rounded-lg">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center">
-                                <svg class="w-8 h-8 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
-                                </svg>
-                                <div>
-                                    <p id="file-name" class="text-sm font-medium text-gray-900"></p>
-                                    <p id="file-size" class="text-sm text-gray-500"></p>
-                                </div>
-                            </div>
-                            <button id="remove-file" class="text-red-500 hover:text-red-700">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                </svg>
-                            </button>
+                    <!-- 文件列表预览区域 -->
+                    <div id="files-preview" class="hidden mt-4">
+                        <h3 class="text-lg font-medium text-gray-900 mb-2">待转换文件列表</h3>
+                        <div id="files-list" class="space-y-2">
+                            <!-- 文件项会动态插入到这里 -->
                         </div>
                     </div>
                 </div>
@@ -141,7 +130,8 @@
     <script>
         const fileUpload = document.getElementById('file-upload');
         const dropZone = document.getElementById('drop-zone');
-        const filePreview = document.getElementById('file-preview');
+        const filesPreview = document.getElementById('files-preview');
+        const filesList = document.getElementById('files-list');
         const fileName = document.getElementById('file-name');
         const fileSize = document.getElementById('file-size');
         const removeFile = document.getElementById('remove-file');
@@ -154,6 +144,7 @@
         const btnText = document.getElementById('btn-text');
         const loadingSpinner = document.getElementById('loading-spinner');
         const logoutBtn = document.getElementById('logout-btn');
+        let uploadedFiles = new Map(); // 存储上传的文件
 
         // 文件拖放处理
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
@@ -182,31 +173,63 @@
             dropZone.classList.remove('border-blue-500');
         }
 
-        dropZone.addEventListener('drop', handleDrop, false);
-
-        function handleDrop(e) {
+        dropZone.addEventListener('drop', (e) => {
             const dt = e.dataTransfer;
-            const file = dt.files[0];
-            handleFile(file);
-        }
+            handleFiles(dt.files);
+        });
 
         // 文件上传处理
         fileUpload.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            handleFile(file);
+            handleFiles(e.target.files);
         });
 
-        function handleFile(file) {
-            if (!file) return;
+        function handleFiles(newFiles) {
+            for (const file of newFiles) {
+                if (!uploadedFiles.has(file.name)) {
+                    uploadedFiles.set(file.name, file);
+                    addFileToPreview(file);
+                }
+            }
+            updateConvertButtonState();
+        }
+
+        function addFileToPreview(file) {
+            const fileItem = document.createElement('div');
+            fileItem.className = 'flex items-center justify-between p-3 bg-gray-50 rounded-lg';
+            fileItem.innerHTML = `
+                <div class="flex items-center">
+                    <svg class="w-6 h-6 text-gray-500 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                    </svg>
+                    <div>
+                        <p class="text-sm font-medium text-gray-900">${file.name}</p>
+                        <p class="text-sm text-gray-500">${formatFileSize(file.size)}</p>
+                    </div>
+                </div>
+                <button class="remove-file text-red-500 hover:text-red-700" data-filename="${file.name}">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                    </svg>
+                </button>
+            `;
+
+            filesList.appendChild(fileItem);
+            filesPreview.classList.remove('hidden');
             
-            // 显示文件预览
-            fileName.textContent = file.name;
-            fileSize.textContent = formatFileSize(file.size);
-            dropZone.classList.add('hidden');
-            filePreview.classList.remove('hidden');
-            convertBtn.disabled = false;
-            errorMessage.classList.add('hidden');
-            result.classList.add('hidden');
+            // 添加删除按钮事件监听
+            fileItem.querySelector('.remove-file').addEventListener('click', (e) => {
+                const filename = e.currentTarget.dataset.filename;
+                uploadedFiles.delete(filename);
+                fileItem.remove();
+                if (uploadedFiles.size === 0) {
+                    filesPreview.classList.add('hidden');
+                }
+                updateConvertButtonState();
+            });
+        }
+
+        function updateConvertButtonState() {
+            convertBtn.disabled = uploadedFiles.size === 0;
         }
 
         function formatFileSize(bytes) {
@@ -216,16 +239,6 @@
             const i = Math.floor(Math.log(bytes) / Math.log(k));
             return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
         }
-
-        // 移除文件
-        removeFile.addEventListener('click', () => {
-            fileUpload.value = '';
-            dropZone.classList.remove('hidden');
-            filePreview.classList.add('hidden');
-            convertBtn.disabled = true;
-            errorMessage.classList.add('hidden');
-            result.classList.add('hidden');
-        });
 
         // 复制功能
         copyBtn.addEventListener('click', async () => {
@@ -243,11 +256,12 @@
 
         // 转换处理
         convertBtn.addEventListener('click', async () => {
-            const file = fileUpload.files[0];
-            if (!file) return;
+            if (uploadedFiles.size === 0) return;
 
             const formData = new FormData();
-            formData.append('file', file);
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
+            });
 
             try {
                 // 显示加载状态
@@ -273,7 +287,10 @@
                 }
 
                 result.classList.remove('hidden');
-                markdownOutput.textContent = data.markdown;
+                // 合并所有文档的转换结果
+                markdownOutput.textContent = data.markdowns.map(item => 
+                    `# ${item.name}\n\n${item.markdown}\n\n---\n\n`
+                ).join('');
             } catch (error) {
                 errorText.textContent = `转换失败：${error.message}`;
                 errorMessage.classList.remove('hidden');

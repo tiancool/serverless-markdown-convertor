@@ -51,9 +51,9 @@ export default {
 
 			try {
 				const formData = await request.formData();
-				const file = formData.get('file');
+				const files = formData.getAll('files');
 				
-				if (!file) {
+				if (!files || files.length === 0) {
 					return new Response(JSON.stringify({ error: '请上传文件' }), {
 						status: 400,
 						headers: { 'Content-Type': 'application/json' }
@@ -78,28 +78,38 @@ export default {
 					'application/vnd.apple.numbers'
 				];
 
-				if (!supportedMimeTypes.includes(file.type)) {
-					return new Response(JSON.stringify({ 
-						error: '不支持的文件类型。请上传 PDF、图片、HTML、XML、Office 文档、CSV 或 Numbers 文件。' 
-					}), {
-						status: 400,
-						headers: { 'Content-Type': 'application/json' }
-					});
+				// 验证所有文件类型
+				for (const file of files) {
+					if (!supportedMimeTypes.includes(file.type)) {
+						return new Response(JSON.stringify({ 
+							error: `不支持的文件类型: ${file.name}。请上传 PDF、图片、HTML、XML、Office 文档、CSV 或 Numbers 文件。` 
+						}), {
+							status: 400,
+							headers: { 'Content-Type': 'application/json' }
+						});
+					}
 				}
 
-				console.log(`[${new Date().toISOString()}] 收到文件: ${file.name}, 大小: ${file.size} 字节, 类型: ${file.type}`);
+				console.log(`[${new Date().toISOString()}] 收到 ${files.length} 个文件`);
+				files.forEach(file => {
+					console.log(`- ${file.name}, 大小: ${file.size} 字节, 类型: ${file.type}`);
+				});
 				
-				// 调用 AI 进行转换
-				const results = await env.AI.toMarkdown([
-					{
-						name: file.name,
-						blob: file
-					}
-				]);
+				// 准备转换的文件列表
+				const fileList = files.map(file => ({
+					name: file.name,
+					blob: file
+				}));
 
-				// 返回第一个文档的转换结果
+				// 调用 AI 进行转换
+				const results = await env.AI.toMarkdown(fileList);
+
+				// 返回所有文档的转换结果
 				return new Response(JSON.stringify({ 
-					markdown: results[0].data 
+					markdowns: results.map((result, index) => ({
+						name: files[index].name,
+						markdown: result.data
+					}))
 				}), {
 					headers: { 'Content-Type': 'application/json' }
 				});
