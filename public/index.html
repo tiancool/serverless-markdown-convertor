@@ -22,9 +22,23 @@
                                 <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">点击上传</span> 或拖拽文件到这里</p>
                                 <p class="text-xs text-gray-500">支持 PDF、图片、Office 文档等格式</p>
                             </div>
-                            <input id="file-upload" type="file" class="hidden" />
+                            <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" />
                         </label>
                     </div>
+                </div>
+                
+                <div class="mt-4 text-sm text-gray-500">
+                    <p class="font-semibold mb-2">支持的文件格式：</p>
+                    <ul class="list-disc list-inside">
+                        <li>PDF文档 (.pdf)</li>
+                        <li>图片文件 (.jpg, .jpeg, .png, .webp, .svg)</li>
+                        <li>HTML文档 (.html)</li>
+                        <li>XML文档 (.xml)</li>
+                        <li>Microsoft Office文档 (.xlsx, .xlsm, .xlsb, .xls, .et)</li>
+                        <li>OpenDocument文档 (.ods)</li>
+                        <li>CSV文件 (.csv)</li>
+                        <li>Apple Numbers文档 (.numbers)</li>
+                    </ul>
                 </div>
                 
                 <div class="flex justify-center">
