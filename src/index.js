@@ -38,7 +38,7 @@ export default {
 		}
 
 		// 处理文件转换请求
-		if (request.method === 'POST' && url.pathname === '/convert') {
+		if (request.method === 'POST' && (url.pathname === '/convert' || url.pathname === '/cf')) {
 			// 验证登录状态
 			if (!authCookie || authCookie !== env.PASSWORD) {
 				return new Response(JSON.stringify({ 
@@ -101,10 +101,16 @@ export default {
 					blob: file
 				}));
 
-				// 调用 AI 进行转换
-				const results = await env.AI.toMarkdown(fileList);
+				// 如果是 CF API 请求，直接返回原始响应
+				if (url.pathname === '/cf') {
+					const rawResults = await env.AI.toMarkdown(fileList);
+					return new Response(JSON.stringify({ results: rawResults }), {
+						headers: { 'Content-Type': 'application/json' }
+					});
+				}
 
-				// 返回所有文档的转换结果
+				// 原有的转换逻辑
+				const results = await env.AI.toMarkdown(fileList);
 				return new Response(JSON.stringify({ 
 					markdowns: results.map((result, index) => ({
 						name: files[index].name,
