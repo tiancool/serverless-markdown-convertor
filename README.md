@@ -1,6 +1,6 @@
 # 网页版文件转 Markdown 转换器
 
-基于 Cloudflare Worker 和 AI 的免费、无需服务器自己部署的文件转 Markdown 工具。
+基于 Cloudflare Worker 和 AI 的免费、无需服务器可自行部署的文件转 Markdown 工具。
 
 ## 支持的文件类型
 
@@ -24,6 +24,8 @@
 密码：`681e3362d68c4ac987215a6367dd44de`
 
 > 注意如果被用的太多，这个 Demo 随时可能关闭，建议自行部署。
+
+![](./images/demo.png)
 
 # 部署方法
 

@@ -85,18 +85,43 @@
                     </div>
                 </div>
                 
-                <div class="mt-4 text-sm text-gray-500">
-                    <p class="font-semibold mb-2">支持的文件格式：</p>
-                    <ul class="list-disc list-inside">
-                        <li>PDF文档 (.pdf)</li>
-                        <li>图片文件 (.jpg, .jpeg, .png, .webp, .svg)</li>
-                        <li>HTML文档 (.html)</li>
-                        <li>XML文档 (.xml)</li>
-                        <li>Microsoft Office文档 (.xlsx, .xlsm, .xlsb, .xls, .et)</li>
-                        <li>OpenDocument文档 (.ods)</li>
-                        <li>CSV文件 (.csv)</li>
-                        <li>Apple Numbers文档 (.numbers)</li>
-                    </ul>
+                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="text-sm text-gray-500">
+                        <p class="font-semibold mb-2">支持的文件格式：</p>
+                        <ul class="list-disc list-inside">
+                            <li>PDF文档 (.pdf)</li>
+                            <li>图片文件 (.jpg, .jpeg, .png, .webp, .svg)</li>
+                            <li>HTML文档 (.html)</li>
+                            <li>XML文档 (.xml)</li>
+                            <li>Microsoft Office文档 (.xlsx, .xlsm, .xlsb, .xls, .et)</li>
+                            <li>OpenDocument文档 (.ods)</li>
+                            <li>CSV文件 (.csv)</li>
+                            <li>Apple Numbers文档 (.numbers)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="text-sm text-gray-500">
+                        <p class="font-semibold mb-2">API 调用方法：</p>
+                        <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="mb-2">POST /convert</p>
+                            <p class="mb-2">请求头：</p>
+                            <pre class="bg-gray-100 p-2 rounded mb-2 text-xs">
+Cookie: auth=您的密码
+Content-Type: multipart/form-data</pre>
+                            <p class="mb-2">请求体：</p>
+                            <pre class="bg-gray-100 p-2 rounded mb-2 text-xs">
+files: File[] (支持多文件)</pre>
+                            <p class="mb-2">响应格式：</p>
+                            <pre class="bg-gray-100 p-2 rounded text-xs">{
+  "markdowns": [
+    {
+      "name": "文件名",
+      "markdown": "转换后的Markdown内容"
+    }
+  ]
+}</pre>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="flex justify-center mt-6">
