@@ -17,6 +17,13 @@ export default {
 		// 验证密码
 		if (request.method === 'POST' && url.pathname === '/auth') {
 			const { password } = await request.json();
+			// 如果未设置环境变量密码，则直接返回成功
+			if (!env.PASSWORD) {
+				return new Response(JSON.stringify({ success: true }), {
+					status: 200,
+					headers: { 'Content-Type': 'application/json' }
+				});
+			}
 			const isValid = password === env.PASSWORD;
 			
 			return new Response(JSON.stringify({ 
@@ -39,8 +46,8 @@ export default {
 
 		// 处理文件转换请求
 		if (request.method === 'POST' && (url.pathname === '/convert' || url.pathname === '/cf')) {
-			// 验证登录状态
-			if (!authCookie || authCookie !== env.PASSWORD) {
+			// 验证登录状态，如果未设置密码则跳过验证
+			if (env.PASSWORD && (!authCookie || authCookie !== env.PASSWORD)) {
 				return new Response(JSON.stringify({ 
 					error: '请先登录' 
 				}), {
