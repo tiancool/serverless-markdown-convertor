@@ -60,50 +60,52 @@
                     </div>
                 </div>
 
-                <div class="mb-4">
-                    <!-- 文件上传区域 -->
-                    <div id="drop-zone" class="flex items-center justify-center w-full">
-                        <label class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
-                            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                                <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
-                                    <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
-                                </svg>
-                                <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">点击上传</span> 或拖拽文件到这里</p>
-                                <p class="text-xs text-gray-500">支持 PDF、图片、Office 文档等格式</p>
-                                <p class="text-xs text-gray-500 mt-1">可以选择多个文件或多次添加</p>
-                            </div>
-                            <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" multiple />
-                        </label>
-                    </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- 左侧：上传区域和文件格式说明 -->
+                    <div>
+                        <!-- 文件上传区域 -->
+                        <div id="drop-zone" class="flex items-center justify-center w-full mb-6">
+                            <label class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 hover:bg-gray-100 transition-all">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-8 h-8 mb-4 text-gray-500" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 16">
+                                        <path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"/>
+                                    </svg>
+                                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">点击上传</span> 或拖拽文件到这里</p>
+                                    <p class="text-xs text-gray-500">支持 PDF、图片、Office 文档等格式</p>
+                                    <p class="text-xs text-gray-500 mt-1">可以选择多个文件或多次添加</p>
+                                </div>
+                                <input id="file-upload" type="file" class="hidden" accept=".pdf,.jpg,.jpeg,.png,.webp,.svg,.html,.xml,.xlsx,.xlsm,.xlsb,.xls,.et,.ods,.csv,.numbers" multiple />
+                            </label>
+                        </div>
 
-                    <!-- 文件列表预览区域 -->
-                    <div id="files-preview" class="hidden mt-4">
-                        <h3 class="text-lg font-medium text-gray-900 mb-2">待转换文件列表</h3>
-                        <div id="files-list" class="space-y-2">
-                            <!-- 文件项会动态插入到这里 -->
+                        <!-- 文件列表预览区域 -->
+                        <div id="files-preview" class="hidden mb-6">
+                            <h3 class="text-lg font-medium text-gray-900 mb-2">待转换文件列表</h3>
+                            <div id="files-list" class="space-y-2">
+                                <!-- 文件项会动态插入到这里 -->
+                            </div>
+                        </div>
+
+                        <div class="text-sm text-gray-500">
+                            <p class="font-semibold mb-2">支持的文件格式：</p>
+                            <ul class="list-disc list-inside">
+                                <li>PDF文档 (.pdf)</li>
+                                <li>图片文件 (.jpg, .jpeg, .png, .webp, .svg)</li>
+                                <li>HTML文档 (.html)</li>
+                                <li>XML文档 (.xml)</li>
+                                <li>Microsoft Office文档 (.xlsx, .xlsm, .xlsb, .xls, .et)</li>
+                                <li>OpenDocument文档 (.ods)</li>
+                                <li>CSV文件 (.csv)</li>
+                                <li>Apple Numbers文档 (.numbers)</li>
+                            </ul>
                         </div>
                     </div>
-                </div>
-                
-                <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="text-sm text-gray-500">
-                        <p class="font-semibold mb-2">支持的文件格式：</p>
-                        <ul class="list-disc list-inside">
-                            <li>PDF文档 (.pdf)</li>
-                            <li>图片文件 (.jpg, .jpeg, .png, .webp, .svg)</li>
-                            <li>HTML文档 (.html)</li>
-                            <li>XML文档 (.xml)</li>
-                            <li>Microsoft Office文档 (.xlsx, .xlsm, .xlsb, .xls, .et)</li>
-                            <li>OpenDocument文档 (.ods)</li>
-                            <li>CSV文件 (.csv)</li>
-                            <li>Apple Numbers文档 (.numbers)</li>
-                        </ul>
-                    </div>
-                    
+
+                    <!-- 右侧：API说明 -->
                     <div class="text-sm text-gray-500">
                         <p class="font-semibold mb-2">API 调用方法：</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
-                            <p class="mb-2">POST /convert</p>
+                            <p class="mb-2" id="api-endpoint"></p>
                             <p class="mb-2">请求头：</p>
                             <pre class="bg-gray-100 p-2 rounded mb-2 text-xs">
 Cookie: auth=您的密码
@@ -279,6 +281,11 @@ files: File[] (支持多文件)</pre>
             }
         });
 
+        // 添加平滑滚动到结果区域的函数
+        function scrollToResult() {
+            result.scrollIntoView({ behavior: 'smooth' });
+        }
+
         // 转换处理
         convertBtn.addEventListener('click', async () => {
             if (uploadedFiles.size === 0) return;
@@ -316,6 +323,9 @@ files: File[] (支持多文件)</pre>
                 markdownOutput.textContent = data.markdowns.map(item => 
                     `# ${item.name}\n\n${item.markdown}\n\n---\n\n`
                 ).join('');
+                
+                // 添加滚动到结果区域
+                scrollToResult();
             } catch (error) {
                 errorText.textContent = `转换失败：${error.message}`;
                 errorMessage.classList.remove('hidden');
@@ -342,6 +352,8 @@ files: File[] (支持多文件)</pre>
                 console.error('登出失败:', error);
             }
         });
+
+        document.getElementById('api-endpoint').textContent = 'POST ' + window.location.origin + '/convert';
     </script>
 </body>
 </html>
