@@ -104,7 +104,7 @@ export default {
 				// 如果是 CF API 请求，直接返回原始响应
 				if (url.pathname === '/cf') {
 					const rawResults = await env.AI.toMarkdown(fileList);
-					return new Response(JSON.stringify({ results: rawResults }), {
+					return new Response(JSON.stringify(rawResults), {
 						headers: { 'Content-Type': 'application/json' }
 					});
 				}

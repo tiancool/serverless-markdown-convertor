@@ -105,6 +105,7 @@
                     <div class="text-sm text-gray-500">
                         <p class="font-semibold mb-2">API 调用方法：</p>
                         <div class="bg-gray-50 p-4 rounded-lg">
+                            <p class="font-semibold mb-2">文档转换 API：</p>
                             <p class="mb-2" id="api-endpoint"></p>
                             <p class="mb-2">请求头：</p>
                             <pre class="bg-gray-100 p-2 rounded mb-2 text-xs">
@@ -114,7 +115,7 @@ Content-Type: multipart/form-data</pre>
                             <pre class="bg-gray-100 p-2 rounded mb-2 text-xs">
 files: File[] (支持多文件)</pre>
                             <p class="mb-2">响应格式：</p>
-                            <pre class="bg-gray-100 p-2 rounded text-xs">{
+                            <pre class="bg-gray-100 p-2 rounded mb-4 text-xs">{
   "markdowns": [
     {
       "name": "文件名",
@@ -122,6 +123,11 @@ files: File[] (支持多文件)</pre>
     }
   ]
 }</pre>
+                            <p class="font-semibold mb-2">CloudFlare 原格式返回 API</p>
+                            <p class="mb-2"><span id="cf-api-endpoint"></span></p>
+                            <p class="mb-2">请求头：与上述相同</p>
+                            <p class="mb-2">请求体：与上述相同</p>
+                            <p class="mb-2">响应格式：<a href="https://developers.cloudflare.com/workers-ai/markdown-conversion/#tomarkdowndocumentresult-definition" target="_blank">点我参考 Cloudflare 官方文档</a></p>
                         </div>
                     </div>
                 </div>
@@ -354,6 +360,7 @@ files: File[] (支持多文件)</pre>
         });
 
         document.getElementById('api-endpoint').textContent = 'POST ' + window.location.origin + '/convert';
+        document.getElementById('cf-api-endpoint').textContent = 'POST ' + window.location.origin + '/cf';
     </script>
 </body>
 </html>
