@@ -1,6 +1,6 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "serverless-markdown-convertor",
+	"name": "cfmarkdown",
 	"main": "src/index.js",
 	"compatibility_date": "2025-03-20",
 	"observability": {
